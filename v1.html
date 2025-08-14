@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Advanced Multi-Line Math Editor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { color-scheme: light dark; }
+  body { font-family: system-ui, Arial, sans-serif; margin: 24px; line-height: 1.5; }
+  h1 { margin-bottom: 0.5em; }
+  .row { display: flex; gap: 8px; align-items: flex-start; }
+  .line-num { width: 2ch; text-align: right; opacity: 0.5; padding-top: 6px; font-size: 0.9rem; }
+  .stack { display: grid; gap: 2px; margin-bottom: 1rem; }
+  math-field, textarea { 
+    width: min(900px, 100%); 
+    font-size: 1.2rem; 
+    padding: 4px 0; 
+    background: none; 
+    border: none; 
+    outline: none; 
+    font-family: inherit;
+  }
+  textarea { resize: none; }
+  .hint { margin-top: 0.3rem; opacity: 0.6; font-size: 0.9rem; }
+  .preview { margin-top: 2rem; }
+  .preview h2 { margin-bottom: 0.3em; }
+  #preview { font-size: 1.4rem; background: none; border: none; outline: none; pointer-events: none; }
+  button { margin-top: 0.8rem; padding: 6px 12px; font-size: 1rem; border: none; border-radius: 6px; cursor: pointer; background: #007bff; color: white; }
+  button:active { transform: scale(0.97); }
+  .toggleBtn { background: #888; color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; align-self: center; }
+</style>
+</head>
+<body>
+<h1>Advanced Multi-Line Math Editor</h1>
+
+<div id="stack" class="stack"></div>
+<div class="hint">
+↵ Enter → new line (math by default) • Shift+Enter → multi-line text • ⌫ Backspace empty → delete • toggle → switch Math/Text
+</div>
+
+<div class="preview">
+<h2>Preview</h2>
+<math-field id="preview" read-only></math-field>
+<button id="copyBtn">Copy LaTeX</button>
+</div>
+
+<script type="module">
+import { MathfieldElement } from "https://esm.run/mathlive";
+
+const stack = document.getElementById("stack");
+const preview = document.getElementById("preview");
+const copyBtn = document.getElementById("copyBtn");
+let lastLatex = "";
+
+// --- create a row ---
+function makeRow(indexAfter = null, initialValue = "", isText = false) {
+  const row = document.createElement("div");
+  row.className = "row";
+
+  const num = document.createElement("div");
+  num.className = "line-num";
+
+  const toggleBtn = document.createElement("button");
+  toggleBtn.className = "toggleBtn";
+  toggleBtn.textContent = isText ? "Text" : "Math";
+
+  let input;
+  if (isText) {
+    input = document.createElement("textarea");
+    input.value = initialValue;
+    input.rows = 1;
+  } else {
+    input = new MathfieldElement();
+    input.value = initialValue;
+    input.setAttribute("virtual-keyboard-mode", "manual");
+  }
+
+  toggleBtn.addEventListener("click", () => {
+    const val = input.value;
+    row.removeChild(input);
+    isText = !isText;
+    if (isText) {
+      input = document.createElement("textarea");
+      input.value = val;
+      input.rows = 1;
+    } else {
+      input = new MathfieldElement();
+      input.value = val;
+      input.setAttribute("virtual-keyboard-mode", "manual");
+      wireMathfield(input);
+    }
+    row.insertBefore(input, toggleBtn);
+    queueMicrotask(() => input.focus());
+    toggleBtn.textContent = isText ? "Text" : "Math";
+    updatePreview();
+  });
+
+  row.append(num, input, toggleBtn);
+
+  if (indexAfter && indexAfter.nextSibling) stack.insertBefore(row, indexAfter.nextSibling);
+  else if (indexAfter) stack.appendChild(row);
+  else stack.appendChild(row);
+
+  if (!isText) wireMathfield(input);
+  renumber();
+  queueMicrotask(() => input.focus());
+  updatePreview();
+  return input;
+}
+
+// --- renumber lines ---
+function renumber() {
+  [...stack.children].forEach((row, i) => row.querySelector(".line-num").textContent = i + 1);
+}
+
+// --- get row ---
+function getRow(el) { return el.closest(".row"); }
+
+// --- remove row ---
+function removeRowOf(input) {
+  const row = getRow(input);
+  if (!row) return;
+  if (stack.children.length === 1) {
+    if (row.querySelector("math-field")) row.querySelector("math-field").value = "";
+    else row.querySelector("textarea").value = "";
+    updatePreview();
+    return;
+  }
+  const prev = row.previousElementSibling;
+  const next = row.nextElementSibling;
+  row.remove();
+  renumber();
+  queueMicrotask(() => (prev?.querySelector("math-field,textarea") || next?.querySelector("math-field,textarea"))?.focus());
+  updatePreview();
+}
+
+// --- add math row after ---
+function addRowAfter(input) { const row = getRow(input); return makeRow(row); }
+
+// --- check empty ---
+function isEmpty(input) {
+  if (input.tagName.toLowerCase() === "math-field") {
+    const v = (input.value || "").trim();
+    return v === "" || v === "\\placeholder{}";
+  } else return input.value.trim() === "";
+}
+
+// --- update preview ---
+function updatePreview() {
+  const lines = [...stack.querySelectorAll(".row")].map(row => {
+    const input = row.querySelector("math-field,textarea");
+    const isText = input.tagName.toLowerCase() === "textarea";
+    const val = input.value.trim();
+    return isText ? `\\text{${val.replace(/\n/g,'\\\\')}}` : val;
+  }).filter(v => v !== "");
+
+  if (lines.length === 0) { preview.value = ""; lastLatex = ""; return; }
+  const joined = "\\displaylines{\n" + lines.join(" \\\\\n") + "\n}";
+  lastLatex = "\\[\n" + joined + "\n\\]";
+  preview.value = lastLatex;
+}
+
+// --- wire mathfield ---
+function wireMathfield(mf) {
+  mf.addEventListener("input", updatePreview);
+
+  mf.addEventListener("keydown", (ev) => {
+    if (ev.key === "Enter") {
+      if (ev.shiftKey && mf.tagName.toLowerCase() === "textarea") return; // allow multi-line text
+      ev.preventDefault();
+      addRowAfter(mf);
+    } else if (ev.key === "Backspace" && isEmpty(mf)) {
+      ev.preventDefault();
+      removeRowOf(mf);
+    }
+  });
+}
+
+// --- copy button ---
+copyBtn.addEventListener("click", async () => {
+  if (!lastLatex) return;
+  try {
+    await navigator.clipboard.writeText(lastLatex);
+    copyBtn.textContent = "Copied!";
+    setTimeout(() => copyBtn.textContent = "Copy LaTeX", 1500);
+  } catch {
+    alert("Clipboard not available.");
+  }
+});
+
+// --- initial math row ---
+makeRow();
+</script>
+</body>
+</html>
