@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>MathScript - Digital Math Notebook</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { color-scheme: light dark; }
+  
+  * { box-sizing: border-box; }
+  
+  body { 
+    font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; 
+    margin: 0; 
+    padding: 32px;
+    line-height: 1.6;
+    background: #0a0a0a;
+    color: #f5f5f5;
+    min-height: 100vh;
+  }
+  
+  body.light-mode {
+    background: #fefefe;
+    color: #1a1a1a;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  
+  body.light-mode .header {
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+  }
+  
+  .title {
+    font-size: 2.5rem;
+    font-weight: 300;
+    margin: 0;
+    letter-spacing: -1px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .subtitle {
+    margin: 8px 0 0 0;
+    font-size: 1rem;
+    opacity: 0.6;
+    font-weight: 400;
+  }
+
+  .toolbar {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+  
+  .toolbar button {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    cursor: pointer;
+    background: rgba(255,255,255,0.05);
+    color: #f5f5f5;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(10px);
+  }
+  
+  body.light-mode .toolbar button {
+    border: 1px solid rgba(0,0,0,0.15);
+    background: rgba(0,0,0,0.03);
+    color: #1a1a1a;
+  }
+  
+  .toolbar button:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.3);
+    transform: translateY(-1px);
+  }
+  
+  body.light-mode .toolbar button:hover {
+    background: rgba(0,0,0,0.08);
+    border-color: rgba(0,0,0,0.25);
+  }
+  
+  .toolbar button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .editor-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 24px;
+    backdrop-filter: blur(20px);
+  }
+  
+  body.light-mode .editor-container {
+    background: rgba(0,0,0,0.02);
+    border: 1px solid rgba(0,0,0,0.1);
+  }
+
+  .row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 4px;
+    padding: 8px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+  }
+  
+  .row:hover {
+    background: rgba(255,255,255,0.03);
+  }
+  
+  body.light-mode .row:hover {
+    background: rgba(0,0,0,0.03);
+  }
+  
+  .line-num {
+    width: 32px;
+    text-align: right;
+    opacity: 0.4;
+    padding-top: 8px;
+    font-size: 0.85rem;
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', monospace;
+    user-select: none;
+  }
+
+  .stack {
+    margin-bottom: 32px;
+  }
+
+  math-field, textarea {
+    width: 100%;
+    font-size: 1.3rem;
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    outline: none;
+    font-family: inherit;
+    color: inherit;
+    resize: none;
+    transition: all 0.2s ease;
+  }
+  
+  body.light-mode math-field,
+  body.light-mode textarea {
+    background: rgba(0,0,0,0.03);
+    border: 1px solid rgba(0,0,0,0.1);
+  }
+
+  math-field:focus, textarea:focus {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.05);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+
+  .toggleBtn {
+    background: rgba(255,255,255,0.08);
+    color: inherit;
+    font-size: 0.75rem;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.2);
+    align-self: center;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    min-width: 60px;
+  }
+  
+  body.light-mode .toggleBtn {
+    background: rgba(0,0,0,0.08);
+    border: 1px solid rgba(0,0,0,0.2);
+  }
+  
+  .toggleBtn:hover {
+    background: rgba(255,255,255,0.15);
+    transform: scale(1.05);
+  }
+  
+  body.light-mode .toggleBtn:hover {
+    background: rgba(0,0,0,0.15);
+  }
+
+  .shortcuts-hint {
+    text-align: center;
+    margin: 24px 0;
+    padding: 16px;
+    opacity: 0.6;
+    font-size: 0.9rem;
+    background: rgba(255,255,255,0.02);
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  
+  body.light-mode .shortcuts-hint {
+    background: rgba(0,0,0,0.02);
+    border: 1px solid rgba(0,0,0,0.05);
+  }
+  
+  .shortcuts-hint kbd {
+    background: rgba(255,255,255,0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-family: 'SF Mono', Monaco, monospace;
+  }
+  
+  body.light-mode .shortcuts-hint kbd {
+    background: rgba(0,0,0,0.1);
+  }
+
+  .preview-section {
+    margin-top: 48px;
+  }
+
+  .preview-section h2 {
+    font-size: 1.5rem;
+    font-weight: 400;
+    margin-bottom: 24px;
+    opacity: 0.8;
+  }
+
+  .preview-container {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 32px 24px;
+    margin-bottom: 24px;
+    min-height: 120px;
+    text-align: left;
+  }
+  
+  body.light-mode .preview-container {
+    background: rgba(0,0,0,0.02);
+    border: 1px solid rgba(0,0,0,0.1);
+  }
+
+  #preview {
+    font-size: 1.5rem;
+    background: none;
+    border: none;
+    outline: none;
+    pointer-events: none;
+    width: 100%;
+    color: inherit;
+    text-align: left;
+  }
+  
+  math-field {
+    --mathfield-text-align: left;
+    text-align: left !important;
+  }
+  
+  .preview-container math-field {
+    text-align: left !important;
+  }
+
+  .actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .action-btn {
+    padding: 12px 24px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  .action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+  }
+
+  .action-btn:active {
+    transform: translateY(0);
+  }
+
+  .status-bar {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    padding: 12px 20px;
+    background: rgba(0,0,0,0.9);
+    color: white;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+  }
+
+  .status-bar.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .copyright {
+    text-align: center;
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    opacity: 0.4;
+    font-size: 0.85rem;
+  }
+  
+  body.light-mode .copyright {
+    border-top: 1px solid rgba(0,0,0,0.1);
+  }
+
+  input[type="file"] {
+    display: none;
+  }
+
+  @media (max-width: 768px) {
+    body { padding: 16px; }
+    .title { font-size: 2rem; }
+    .editor-container { padding: 16px; }
+    math-field, textarea { font-size: 1.1rem; }
+    .toolbar { gap: 8px; }
+    .toolbar button { padding: 6px 12px; font-size: 0.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1 class="title">MathScript</h1>
+  <p class="subtitle">Digital Math Notebook for Pure Mathematics</p>
+</div>
+
+<div class="toolbar">
+  <button id="themeBtn" title="Toggle theme">🌙</button>
+  <button id="undoBtn" title="Undo (Ctrl+Z)">↶ Undo</button>
+  <button id="addMathBtn" title="Add math line (Ctrl+M)">+ Math</button>
+  <button id="addTextBtn" title="Add text line (Ctrl+T)">+ Text</button>
+  <button id="clearBtn" title="Clear all (Ctrl+L)">🗑 Clear</button>
+  <button id="saveBtn" title="Save project (Ctrl+S)">💾 Save</button>
+  <button id="loadBtn" title="Load project">📂 Load</button>
+  <button id="exportBtn" title="Export LaTeX (Ctrl+E)">📤 Export</button>
+  <button id="importBtn" title="Import LaTeX">📥 Import</button>
+</div>
+
+<div class="editor-container">
+  <div id="stack" class="stack"></div>
+  
+  <div class="shortcuts-hint">
+    <kbd>Enter</kbd> new math • <kbd>Shift+Enter</kbd> new text/multiline • <kbd>Ctrl+Space</kbd> toggle mode • <kbd>↑/↓</kbd> navigate<br>
+    <kbd>Ctrl+Z</kbd> undo • <kbd>Backspace</kbd> on empty deletes • <kbd>Ctrl+S</kbd> save • <kbd>Ctrl+E</kbd> export LaTeX
+  </div>
+</div>
+
+<div class="preview-section">
+  <h2>Live Preview</h2>
+  <div class="preview-container">
+    <math-field id="preview" read-only></math-field>
+  </div>
+  
+  <div class="actions">
+    <button class="action-btn" id="copyBtn">📋 Copy LaTeX</button>
+    <button class="action-btn" id="copyPlainBtn">📄 Copy Plain Text</button>
+  </div>
+</div>
+
+<div class="copyright">
+  © 2025 Théophile Jérôme-Rocher. MathScript - Professional Digital Mathematics Tool.
+</div>
+
+<div class="status-bar" id="statusBar"></div>
+<input type="file" id="fileInput" accept=".json,.tex,.txt">
+<input type="file" id="latexInput" accept=".tex,.txt">
+
+<script type="module">
+import { MathfieldElement } from "https://esm.run/mathlive";
+
+const stack = document.getElementById("stack");
+const preview = document.getElementById("preview");
+const copyBtn = document.getElementById("copyBtn");
+const copyPlainBtn = document.getElementById("copyPlainBtn");
+const undoBtn = document.getElementById("undoBtn");
+const statusBar = document.getElementById("statusBar");
+const themeBtn = document.getElementById("themeBtn");
+const fileInput = document.getElementById("fileInput");
+const latexInput = document.getElementById("latexInput");
+
+let lastLatex = "";
+let history = [];
+let historyIndex = -1;
+
+function saveState() {
+  const state = [...stack.children].map(row => {
+    const input = row.querySelector("math-field,textarea");
+    const isText = input.tagName.toLowerCase() === "textarea";
+    return { value: input.value || "", isText };
+  });
+  
+  const stateString = JSON.stringify(state);
+  
+  if (history[historyIndex] === stateString) return;
+  
+  history = history.slice(0, historyIndex + 1);
+  history.push(stateString);
+  historyIndex = history.length - 1;
+  
+  if (history.length > 50) {
+    history.shift();
+    historyIndex--;
+  }
+  
+  updateUndoRedoButtons();
+}
+
+function undo() {
+  if (historyIndex > 0) {
+    historyIndex--;
+    restoreState(JSON.parse(history[historyIndex]));
+    showStatus("Undone");
+  }
+}
+
+function restoreState(state) {
+  stack.innerHTML = "";
+  if (state.length === 0) {
+    makeRow();
+    return;
+  }
+  
+  state.forEach(item => {
+    makeRow(null, item.value || "", item.isText);
+  });
+  renumber();
+  updatePreview();
+}
+
+function updateUndoRedoButtons() {
+  undoBtn.disabled = historyIndex <= 0;
+}
+
+function showStatus(message) {
+  statusBar.textContent = message;
+  statusBar.classList.add("show");
+  setTimeout(() => statusBar.classList.remove("show"), 2000);
+}
+
+function makeRow(indexAfter = null, initialValue = "", isText = false) {
+  const row = document.createElement("div");
+  row.className = "row";
+
+  const num = document.createElement("div");
+  num.className = "line-num";
+
+  const toggleBtn = document.createElement("button");
+  toggleBtn.className = "toggleBtn";
+  toggleBtn.textContent = isText ? "Text" : "Math";
+
+  let input;
+  if (isText) {
+    input = document.createElement("textarea");
+    input.value = initialValue;
+    input.rows = 1;
+    input.style.minHeight = "44px";
+  } else {
+    input = new MathfieldElement();
+    input.value = initialValue;
+    input.setAttribute("virtual-keyboard-mode", "manual");
+  }
+
+  toggleBtn.addEventListener("click", () => {
+    const val = input.value || "";
+    row.removeChild(input);
+    isText = !isText;
+    if (isText) {
+      input = document.createElement("textarea");
+      input.value = val;
+      input.rows = 1;
+      input.style.minHeight = "44px";
+    } else {
+      input = new MathfieldElement();
+      input.value = val;
+      input.setAttribute("virtual-keyboard-mode", "manual");
+      wireMathfield(input);
+    }
+    wireTextarea(input);
+    row.insertBefore(input, toggleBtn);
+    setTimeout(() => input.focus(), 0);
+    toggleBtn.textContent = isText ? "Text" : "Math";
+    updatePreview();
+    saveState();
+  });
+
+  row.append(num, input, toggleBtn);
+
+  if (indexAfter && indexAfter.nextSibling) {
+    stack.insertBefore(row, indexAfter.nextSibling);
+  } else if (indexAfter) {
+    stack.appendChild(row);
+  } else {
+    stack.appendChild(row);
+  }
+
+  if (!isText) wireMathfield(input);
+  wireTextarea(input);
+  renumber();
+  setTimeout(() => input.focus(), 0);
+  updatePreview();
+  return input;
+}
+
+function renumber() {
+  [...stack.children].forEach((row, i) => {
+    const lineNum = row.querySelector(".line-num");
+    if (lineNum) lineNum.textContent = i + 1;
+  });
+}
+
+function getRow(el) { 
+  return el.closest(".row"); 
+}
+
+function removeRowOf(input) {
+  const row = getRow(input);
+  if (!row) return;
+  
+  if (stack.children.length === 1) {
+    const targetInput = row.querySelector("math-field,textarea");
+    if (targetInput) {
+      targetInput.value = "";
+      updatePreview();
+    }
+    return;
+  }
+  
+  const prev = row.previousElementSibling;
+  const next = row.nextElementSibling;
+  row.remove();
+  renumber();
+  
+  setTimeout(() => {
+    const targetInput = prev?.querySelector("math-field,textarea") || next?.querySelector("math-field,textarea");
+    if (targetInput) targetInput.focus();
+  }, 0);
+  
+  updatePreview();
+}
+
+function addRowAfter(input, isText = false) { 
+  const row = getRow(input); 
+  return makeRow(row, "", isText); 
+}
+
+function isEmpty(input) {
+  if (!input) return true;
+  
+  if (input.tagName.toLowerCase() === "math-field") {
+    const v = (input.value || "").trim();
+    return v === "" || v === "\\placeholder{}" || v === "\\placeholder{}\\placeholder{}";
+  } else {
+    return (input.value || "").trim() === "";
+  }
+}
+
+function updatePreview() {
+  const lines = [...stack.querySelectorAll(".row")].map(row => {
+    const input = row.querySelector("math-field,textarea");
+    if (!input) return "";
+    
+    const isText = input.tagName.toLowerCase() === "textarea";
+    const val = (input.value || "").trim();
+    
+    if (val === "") return "";
+    
+    if (isText) {
+      const textLines = val.split('\n').map(line => line.trim()).filter(line => line !== "");
+      if (textLines.length === 0) return "";
+      return textLines.map(line => `\\text{${line}}`).join(' \\\\ ');
+    } else {
+      return val;
+    }
+  }).filter(v => v !== "");
+
+  if (lines.length === 0) { 
+    preview.value = ""; 
+    lastLatex = ""; 
+    return; 
+  }
+  
+  if (lines.length === 1) {
+    lastLatex = lines[0];
+  } else {
+    lastLatex = "\\begin{aligned}\n" + lines.join(" \\\\\n") + "\n\\end{aligned}";
+  }
+  
+  preview.value = lastLatex;
+}
+
+function wireMathfield(mf) {
+  if (!mf || mf.tagName.toLowerCase() !== "math-field") return;
+  
+  mf.addEventListener("input", () => {
+    updatePreview();
+    clearTimeout(mf._autoSaveTimer);
+    mf._autoSaveTimer = setTimeout(() => saveState(), 1000);
+  });
+
+  mf.addEventListener("keydown", (ev) => {
+    if (ev.key === " " && ev.ctrlKey) {
+      ev.preventDefault();
+      const toggleBtn = getRow(mf)?.querySelector(".toggleBtn");
+      if (toggleBtn) toggleBtn.click();
+      return;
+    }
+    
+    if (ev.key === "ArrowUp" && !ev.shiftKey && !ev.ctrlKey) {
+      const prevRow = getRow(mf)?.previousElementSibling;
+      if (prevRow) {
+        ev.preventDefault();
+        const prevInput = prevRow.querySelector("math-field,textarea");
+        if (prevInput) {
+          prevInput.focus();
+          setTimeout(() => {
+            if (prevInput.tagName.toLowerCase() === "math-field") {
+              prevInput.position = (prevInput.value || "").length;
+            } else {
+              const len = (prevInput.value || "").length;
+              prevInput.setSelectionRange(len, len);
+            }
+          }, 10);
+        }
+      }
+    } else if (ev.key === "ArrowDown" && !ev.shiftKey && !ev.ctrlKey) {
+      const nextRow = getRow(mf)?.nextElementSibling;
+      if (nextRow) {
+        ev.preventDefault();
+        const nextInput = nextRow.querySelector("math-field,textarea");
+        if (nextInput) {
+          nextInput.focus();
+          setTimeout(() => {
+            if (nextInput.tagName.toLowerCase() === "math-field") {
+              nextInput.position = 0;
+            } else {
+              nextInput.setSelectionRange(0, 0);
+            }
+          }, 10);
+        }
+      }
+    } else if (ev.key === "Enter") {
+      if (ev.shiftKey) {
+        ev.preventDefault();
+        addRowAfter(mf, true);
+        saveState();
+      } else {
+        ev.preventDefault();
+        addRowAfter(mf);
+        saveState();
+      }
+    } else if (ev.key === "Backspace" && isEmpty(mf)) {
+      ev.preventDefault();
+      const prevRow = getRow(mf)?.previousElementSibling;
+      if (prevRow && stack.children.length > 1) {
+        const prevInput = prevRow.querySelector("math-field,textarea");
+        const prevValue = prevInput ? (prevInput.value || "") : "";
+        removeRowOf(mf);
+        if (prevInput) {
+          prevInput.focus();
+          setTimeout(() => {
+            if (prevInput.tagName.toLowerCase() === "math-field") {
+              prevInput.position = prevValue.length;
+            } else {
+              prevInput.setSelectionRange(prevValue.length, prevValue.length);
+            }
+          }, 10);
+        }
+      } else {
+        removeRowOf(mf);
+      }
+      saveState();
+    }
+  });
+}
+
+function wireTextarea(ta) {
+  if (!ta || ta.tagName.toLowerCase() !== "textarea") return;
+  
+  ta.addEventListener("input", () => {
+    ta.style.height = "auto";
+    ta.style.height = Math.max(44, ta.scrollHeight) + "px";
+    updatePreview();
+    clearTimeout(ta._autoSaveTimer);
+    ta._autoSaveTimer = setTimeout(() => saveState(), 1000);
+  });
+
+  ta.addEventListener("keydown", (ev) => {
+    if (ev.key === " " && ev.ctrlKey) {
+      ev.preventDefault();
+      const toggleBtn = getRow(ta)?.querySelector(".toggleBtn");
+      if (toggleBtn) toggleBtn.click();
+      return;
+    }
+    
+    if (ev.key === "ArrowUp" && !ev.shiftKey && !ev.ctrlKey) {
+      const start = ta.selectionStart;
+      const beforeCursor = (ta.value || "").substring(0, start);
+      const isAtFirstLine = !beforeCursor.includes('\n');
+      
+      if (isAtFirstLine) {
+        const prevRow = getRow(ta)?.previousElementSibling;
+        if (prevRow) {
+          ev.preventDefault();
+          const prevInput = prevRow.querySelector("math-field,textarea");
+          if (prevInput) {
+            prevInput.focus();
+            setTimeout(() => {
+              if (prevInput.tagName.toLowerCase() === "math-field") {
+                prevInput.position = (prevInput.value || "").length;
+              } else {
+                const len = (prevInput.value || "").length;
+                prevInput.setSelectionRange(len, len);
+              }
+            }, 10);
+          }
+        }
+      }
+    } else if (ev.key === "ArrowDown" && !ev.shiftKey && !ev.ctrlKey) {
+      const start = ta.selectionStart;
+      const afterCursor = (ta.value || "").substring(start);
+      const isAtLastLine = !afterCursor.includes('\n');
+      
+      if (isAtLastLine) {
+        const nextRow = getRow(ta)?.nextElementSibling;
+        if (nextRow) {
+          ev.preventDefault();
+          const nextInput = nextRow.querySelector("math-field,textarea");
+          if (nextInput) {
+            nextInput.focus();
+            setTimeout(() => {
+              if (nextInput.tagName.toLowerCase() === "math-field") {
+                nextInput.position = 0;
+              } else {
+                nextInput.setSelectionRange(0, 0);
+              }
+            }, 10);
+          }
+        }
+      }
+    } else if (ev.key === "Enter") {
+      if (ev.shiftKey) {
+        return;
+      } else {
+        ev.preventDefault();
+        addRowAfter(ta);
+        saveState();
+      }
+    } else if (ev.key === "Backspace" && isEmpty(ta)) {
+      ev.preventDefault();
+      const prevRow = getRow(ta)?.previousElementSibling;
+      if (prevRow && stack.children.length > 1) {
+        const prevInput = prevRow.querySelector("math-field,textarea");
+        const prevValue = prevInput ? (prevInput.value || "") : "";
+        removeRowOf(ta);
+        if (prevInput) {
+          prevInput.focus();
+          setTimeout(() => {
+            if (prevInput.tagName.toLowerCase() === "math-field") {
+              prevInput.position = prevValue.length;
+            } else {
+              prevInput.setSelectionRange(prevValue.length, prevValue.length);
+            }
+          }, 10);
+        }
+      } else {
+        removeRowOf(ta);
+      }
+      saveState();
+    }
+  });
+}
+
+// Theme toggle
+themeBtn.addEventListener("click", () => {
+  document.body.classList.toggle("light-mode");
+  const isLight = document.body.classList.contains("light-mode");
+  themeBtn.textContent = isLight ? "☀️" : "🌙";
+  showStatus(`Switched to ${isLight ? 'light' : 'dark'} mode`);
+});
+
+// History controls
+undoBtn.addEventListener("click", undo);
+
+// Add buttons
+document.getElementById("addMathBtn").addEventListener("click", () => {
+  makeRow();
+  saveState();
+});
+
+document.getElementById("addTextBtn").addEventListener("click", () => {
+  makeRow(null, "", true);
+  saveState();
+});
+
+// Clear button
+document.getElementById("clearBtn").addEventListener("click", () => {
+  if (confirm("Clear all content? This cannot be undone.")) {
+    stack.innerHTML = "";
+    makeRow();
+    saveState();
+    showStatus("Cleared all content");
+  }
+});
+
+// Save project
+document.getElementById("saveBtn").addEventListener("click", () => {
+  const state = [...stack.children].map(row => {
+    const input = row.querySelector("math-field,textarea");
+    const isText = input?.tagName.toLowerCase() === "textarea";
+    return { value: input?.value || "", isText };
+  });
+  
+  const timestamp = new Date().toISOString().slice(0,19).replace(/:/g,'-');
+  const projectData = {
+    version: "1.0",
+    created: new Date().toISOString(),
+    title: "MathScript Project",
+    content: state
+  };
+  
+  const blob = new Blob([JSON.stringify(projectData, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `mathscript-project-${timestamp}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showStatus("Project saved to downloads");
+});
+
+// Load project
+document.getElementById("loadBtn").addEventListener("click", () => {
+  fileInput.click();
+});
+
+fileInput.addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    try {
+      const data = JSON.parse(event.target.result);
+      if (data.content && Array.isArray(data.content)) {
+        restoreState(data.content);
+        saveState();
+        showStatus("Project loaded successfully");
+      } else {
+        showStatus("Invalid project file format");
+      }
+    } catch (error) {
+      showStatus("Error loading project file");
+      console.error("Load error:", error);
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = "";
+});
+
+// Export LaTeX
+document.getElementById("exportBtn").addEventListener("click", () => {
+  if (!lastLatex.trim()) {
+    showStatus("Nothing to export");
+    return;
+  }
+  
+  const timestamp = new Date().toISOString().slice(0,19).replace(/:/g,'-');
+  const latexDocument = `% MathScript Export - ${new Date().toLocaleDateString()}
+% Generated by MathScript - Digital Math Notebook
+% © 2025 Théophile Jérôme-Rocher
+
+\\documentclass{article}
+\\usepackage{amsmath}
+\\usepackage{amsfonts}
+\\usepackage{amssymb}
+\\usepackage[utf8]{inputenc}
+
+\\title{Mathematical Notes}
+\\author{MathScript}
+\\date{${new Date().toLocaleDateString()}}
+
+\\begin{document}
+\\maketitle
+
+${lastLatex}
+
+\\end{document}`;
+  
+  const blob = new Blob([latexDocument], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `mathscript-export-${timestamp}.tex`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showStatus("LaTeX exported to downloads");
+});
+
+// Import LaTeX
+document.getElementById("importBtn").addEventListener("click", () => {
+  latexInput.click();
+});
+
+latexInput.addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    try {
+      const latexContent = event.target.result;
+      // Simple LaTeX parsing - extract content between \begin{document} and \end{document}
+      const documentMatch = latexContent.match(/\\begin\{document\}([\s\S]*?)\\end\{document\}/);
+      let content = documentMatch ? documentMatch[1].trim() : latexContent;
+      
+      // Remove title, author, date commands
+      content = content.replace(/\\maketitle/g, '');
+      content = content.replace(/\\title\{[^}]*\}/g, '');
+      content = content.replace(/\\author\{[^}]*\}/g, '');
+      content = content.replace(/\\date\{[^}]*\}/g, '');
+      
+      if (content.trim()) {
+        stack.innerHTML = "";
+        makeRow(null, content.trim(), false);
+        saveState();
+        showStatus("LaTeX imported successfully");
+      } else {
+        showStatus("No content found in LaTeX file");
+      }
+    } catch (error) {
+      showStatus("Error importing LaTeX file");
+      console.error("Import error:", error);
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = "";
+});
+
+// Copy buttons
+copyBtn.addEventListener("click", () => {
+  if (!lastLatex.trim()) {
+    showStatus("Nothing to copy");
+    return;
+  }
+  
+  navigator.clipboard.writeText(lastLatex).then(() => {
+    showStatus("LaTeX copied to clipboard");
+  }).catch(() => {
+    showStatus("Failed to copy LaTeX");
+  });
+});
+
+copyPlainBtn.addEventListener("click", () => {
+  const plainText = [...stack.querySelectorAll(".row")].map(row => {
+    const input = row.querySelector("math-field,textarea");
+    if (!input) return "";
+    
+    const val = (input.value || "").trim();
+    return val;
+  }).filter(v => v !== "").join('\n');
+  
+  if (!plainText.trim()) {
+    showStatus("Nothing to copy");
+    return;
+  }
+  
+  navigator.clipboard.writeText(plainText).then(() => {
+    showStatus("Plain text copied to clipboard");
+  }).catch(() => {
+    showStatus("Failed to copy plain text");
+  });
+});
+
+// Keyboard shortcuts
+document.addEventListener("keydown", (ev) => {
+  if (ev.ctrlKey || ev.metaKey) {
+    switch (ev.key) {
+      case 'z':
+        if (ev.shiftKey) {
+          ev.preventDefault();
+          undo();
+        } else {
+          ev.preventDefault();
+          undo();
+        }
+        break;
+      case 's':
+        ev.preventDefault();
+        document.getElementById("saveBtn").click();
+        break;
+      case 'e':
+        ev.preventDefault();
+        document.getElementById("exportBtn").click();
+        break;
+      case 'l':
+        ev.preventDefault();
+        document.getElementById("clearBtn").click();
+        break;
+      case 'm':
+        ev.preventDefault();
+        document.getElementById("addMathBtn").click();
+        break;
+      case 't':
+        ev.preventDefault();
+        document.getElementById("addTextBtn").click();
+        break;
+    }
+  }
+});
+
+// Initialize
+makeRow();
+setTimeout(() => {
+  saveState();
+  updateUndoRedoButtons();
+}, 100);
+</script>
+
+</body>
+</html>
