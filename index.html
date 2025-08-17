@@ -266,10 +266,14 @@
   math-field {
     --mathfield-text-align: left;
     text-align: left !important;
+    display: block;
   }
   
   .preview-container math-field {
     text-align: left !important;
+    --mathfield-text-align: left;
+    display: block;
+    width: 100%;
   }
 
   .actions {
@@ -613,7 +617,8 @@ function updatePreview() {
   if (lines.length === 1) {
     lastLatex = lines[0];
   } else {
-    lastLatex = "\\begin{aligned}\n" + lines.join(" \\\\\n") + "\n\\end{aligned}";
+    // Use array environment with left alignment for consistent display
+    lastLatex = "\\begin{array}{l}\n" + lines.join(" \\\\\n") + "\n\\end{array}";
   }
   
   preview.value = lastLatex;
