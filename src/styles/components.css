@@ -1,0 +1,153 @@
+.toolbar button {
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: 0.9rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  background: var(--color-button-bg);
+  color: var(--color-text);
+  font-weight: 500;
+  transition: all var(--transition-fast);
+  backdrop-filter: blur(10px);
+}
+
+.toolbar button:hover {
+  background: var(--color-button-hover);
+  border-color: var(--color-border-hover);
+  transform: translateY(-1px);
+}
+
+.toolbar button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.toggleBtn {
+  background: var(--color-toggle-bg);
+  color: var(--color-text);
+  font-size: 0.75rem;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  align-self: center;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all var(--transition-fast);
+  min-width: 60px;
+}
+
+.toggleBtn:hover {
+  background: var(--color-toggle-hover);
+  transform: scale(1.05);
+}
+
+math-field, textarea {
+  width: 100%;
+  font-size: 1.3rem;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  outline: none;
+  font-family: inherit;
+  color: inherit;
+  resize: none;
+  transition: all var(--transition-fast);
+}
+
+math-field:focus, textarea:focus {
+  border-color: var(--color-accent);
+  background: var(--color-accent-bg);
+  box-shadow: 0 0 0 3px var(--color-accent-shadow);
+}
+
+math-field {
+  --mathfield-text-align: left;
+  text-align: left !important;
+}
+
+textarea {
+  min-height: 44px;
+}
+
+#preview {
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  outline: none;
+  pointer-events: none;
+  width: 100%;
+  color: inherit;
+}
+
+.action-btn {
+  padding: var(--spacing-md) var(--spacing-xl);
+  font-size: 1rem;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  background: var(--gradient-accent);
+  color: white;
+  font-weight: 500;
+  transition: all var(--transition-fast);
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.action-btn:active {
+  transform: translateY(0);
+}
+
+.status-bar {
+  position: fixed;
+  bottom: var(--spacing-xl);
+  right: var(--spacing-xl);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--color-status-bg);
+  color: white;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  font-weight: 500;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all var(--transition-medium);
+  backdrop-filter: blur(10px);
+  pointer-events: none;
+}
+
+.status-bar.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.shortcuts-hint {
+  text-align: center;
+  margin: var(--spacing-xl) 0;
+  padding: var(--spacing-lg);
+  opacity: 0.6;
+  font-size: 0.9rem;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.shortcuts-hint kbd {
+  background: var(--color-kbd-bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-family: var(--font-mono);
+}
+
+input[type="file"] {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  math-field, textarea { font-size: 1.1rem; }
+  .toolbar button { padding: 6px 12px; font-size: 0.8rem; }
+}

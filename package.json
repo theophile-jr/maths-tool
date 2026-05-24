@@ -1,0 +1,19 @@
+{
+  "name": "mathscript",
+  "version": "1.0.0",
+  "description": "Digital Math Notebook for Pure Mathematics",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx serve . -p 3000",
+    "start": "python3 -m http.server 8000"
+  },
+  "keywords": [
+    "math",
+    "latex",
+    "notebook",
+    "editor",
+    "mathematics"
+  ],
+  "author": "Théophile Jérôme-Rocher",
+  "license": "MIT"
+}
