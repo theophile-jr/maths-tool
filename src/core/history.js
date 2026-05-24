@@ -30,7 +30,19 @@ export class HistoryManager {
     return null;
   }
 
+  redo() {
+    if (this.index < this.history.length - 1) {
+      this.index++;
+      return JSON.parse(this.history[this.index]);
+    }
+    return null;
+  }
+
   canUndo() {
     return this.index > 0;
+  }
+
+  canRedo() {
+    return this.index < this.history.length - 1;
   }
 }

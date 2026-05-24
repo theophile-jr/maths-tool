@@ -34,7 +34,15 @@ export class KeyboardHandler {
     switch (key) {
       case 'z':
         ev.preventDefault();
-        this.actions.undo?.();
+        if (ev.shiftKey) {
+          this.actions.redo?.();
+        } else {
+          this.actions.undo?.();
+        }
+        break;
+      case 'y':
+        ev.preventDefault();
+        this.actions.redo?.();
         break;
       case 's':
         ev.preventDefault();

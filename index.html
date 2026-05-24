@@ -2,59 +2,125 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>MathScript - Digital Math Notebook</title>
+  <title>MathScript - Free Online LaTeX Math Editor & Digital Notebook</title>
+  <meta name="description" content="Write, preview, and export mathematical equations in your browser. A free digital math notebook with LaTeX support, live preview, keyboard navigation, and project save/load. Perfect for students, researchers, and mathematicians.">
+  <meta name="keywords" content="math editor, LaTeX editor, online math tool, equation editor, digital math notebook, math live preview, pure mathematics, calculus, algebra, math homework tool">
+  <meta name="author" content="Théophile Jérôme-Rocher">
+  <meta name="robots" content="index, follow">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta property="og:title" content="MathScript - Free Online LaTeX Math Editor">
+  <meta property="og:description" content="Write, preview, and export mathematical equations. A free digital math notebook with LaTeX support and live preview.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://theophile-jr.github.io/maths-tool/">
+  <meta property="og:locale" content="en_US">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="MathScript - Free Online LaTeX Math Editor">
+  <meta name="twitter:description" content="Write, preview, and export mathematical equations in your browser.">
+
+  <link rel="canonical" href="https://theophile-jr.github.io/maths-tool/">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>∑</text></svg>">
+
   <link rel="stylesheet" href="src/styles/variables.css">
   <link rel="stylesheet" href="src/styles/layout.css">
   <link rel="stylesheet" href="src/styles/components.css">
 </head>
 <body>
 
-<div class="header">
+<header class="header">
   <h1 class="title">MathScript</h1>
   <p class="subtitle">Digital Math Notebook for Pure Mathematics</p>
-</div>
+</header>
 
-<div class="toolbar">
-  <button id="themeBtn" title="Toggle theme">🌙</button>
-  <button id="undoBtn" title="Undo (Ctrl+Z)">↶ Undo</button>
-  <button id="addMathBtn" title="Add math line (Ctrl+M)">+ Math</button>
-  <button id="addTextBtn" title="Add text line (Ctrl+T)">+ Text</button>
-  <button id="clearBtn" title="Clear all (Ctrl+L)">🗑 Clear</button>
-  <button id="saveBtn" title="Save project (Ctrl+S)">💾 Save</button>
-  <button id="loadBtn" title="Load project">📂 Load</button>
-  <button id="exportBtn" title="Export LaTeX (Ctrl+E)">📤 Export</button>
-  <button id="importBtn" title="Import LaTeX">📥 Import</button>
-</div>
-
-<div class="editor-container">
-  <div id="stack" class="stack"></div>
-
-  <div class="shortcuts-hint">
-    <kbd>Enter</kbd> new math • <kbd>Shift+Enter</kbd> new text/multiline • <kbd>Ctrl+Space</kbd> toggle mode • <kbd>↑/↓</kbd> navigate<br>
-    <kbd>Ctrl+Z</kbd> undo • <kbd>Backspace</kbd> on empty deletes • <kbd>Ctrl+S</kbd> save • <kbd>Ctrl+E</kbd> export LaTeX
+<section class="hero" id="heroSection">
+  <div class="hero-content">
+    <p class="hero-text">
+      Write math equations line by line. See them rendered instantly. Export to LaTeX.
+      No setup, no account, no install &mdash; just open and start working.
+    </p>
+    <div class="hero-features">
+      <span class="hero-badge">Live Preview</span>
+      <span class="hero-badge">LaTeX Export</span>
+      <span class="hero-badge">Keyboard Driven</span>
+      <span class="hero-badge">Auto-Save</span>
+    </div>
   </div>
-</div>
+</section>
 
-<div class="preview-section">
+<nav class="toolbar" aria-label="Editor toolbar">
+  <div class="toolbar-group">
+    <button id="themeBtn" title="Toggle dark/light theme" aria-label="Toggle theme">
+      <span class="btn-icon">🌙</span>
+    </button>
+    <button id="undoBtn" title="Undo (Ctrl+Z)" aria-label="Undo" disabled>
+      <span class="btn-icon">↶</span> Undo
+    </button>
+  </div>
+  <div class="toolbar-group">
+    <button id="addMathBtn" title="Add math line (Ctrl+M)" aria-label="Add math line">
+      <span class="btn-icon">∑</span> Math
+    </button>
+    <button id="addTextBtn" title="Add text line (Ctrl+T)" aria-label="Add text line">
+      <span class="btn-icon">T</span> Text
+    </button>
+  </div>
+  <div class="toolbar-group">
+    <button id="saveBtn" title="Save project file (Ctrl+S)" aria-label="Save project">
+      <span class="btn-icon">💾</span> Save
+    </button>
+    <button id="loadBtn" title="Load project file" aria-label="Load project">
+      <span class="btn-icon">📂</span> Load
+    </button>
+  </div>
+  <div class="toolbar-group">
+    <button id="exportBtn" title="Export as LaTeX document (Ctrl+E)" aria-label="Export LaTeX">
+      <span class="btn-icon">📤</span> Export
+    </button>
+    <button id="importBtn" title="Import LaTeX file" aria-label="Import LaTeX">
+      <span class="btn-icon">📥</span> Import
+    </button>
+  </div>
+  <div class="toolbar-group">
+    <button id="clearBtn" title="Clear all content (Ctrl+L)" aria-label="Clear all">
+      <span class="btn-icon">🗑</span> Clear
+    </button>
+  </div>
+</nav>
+
+<main class="editor-container" role="main">
+  <div id="stack" class="stack" aria-label="Math editor lines"></div>
+
+  <div class="shortcuts-hint" id="shortcutsHint">
+    <kbd>Enter</kbd> new math &middot; <kbd>Shift+Enter</kbd> new text &middot; <kbd>Ctrl+Space</kbd> toggle mode &middot; <kbd>↑</kbd><kbd>↓</kbd> navigate<br>
+    <kbd>Ctrl+Z</kbd> undo &middot; <kbd>Ctrl+Shift+Z</kbd> redo &middot; <kbd>Backspace</kbd> on empty deletes line<br>
+    <kbd>Ctrl+S</kbd> save &middot; <kbd>Ctrl+E</kbd> export LaTeX &middot; <kbd>Ctrl+M</kbd> add math &middot; <kbd>Ctrl+T</kbd> add text
+  </div>
+</main>
+
+<section class="preview-section" aria-label="Live preview">
   <h2>Live Preview</h2>
   <div class="preview-container">
-    <math-field id="preview" read-only></math-field>
+    <math-field id="preview" read-only aria-label="Rendered math preview"></math-field>
   </div>
 
   <div class="actions">
-    <button class="action-btn" id="copyBtn">📋 Copy LaTeX</button>
-    <button class="action-btn" id="copyPlainBtn">📄 Copy Plain Text</button>
+    <button class="action-btn" id="copyBtn" aria-label="Copy LaTeX to clipboard">
+      <span class="btn-icon">📋</span> Copy LaTeX
+    </button>
+    <button class="action-btn" id="copyPlainBtn" aria-label="Copy plain text to clipboard">
+      <span class="btn-icon">📄</span> Copy Plain Text
+    </button>
   </div>
-</div>
+</section>
 
 <div class="copyright">
-  © 2025 Théophile Jérôme-Rocher. MathScript - Professional Digital Mathematics Tool.
+  &copy; 2025 Th&eacute;ophile J&eacute;r&ocirc;me-Rocher. MathScript &mdash; Free, open-source digital mathematics tool.
 </div>
 
-<div class="status-bar" id="statusBar"></div>
-<input type="file" id="fileInput" accept=".json,.tex,.txt">
-<input type="file" id="latexInput" accept=".tex,.txt">
+<div class="status-bar" id="statusBar" role="status" aria-live="polite"></div>
+<input type="file" id="fileInput" accept=".json,.tex,.txt" aria-hidden="true">
+<input type="file" id="latexInput" accept=".tex,.txt" aria-hidden="true">
 
 <script type="module" src="src/app.js"></script>
 

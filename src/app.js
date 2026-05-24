@@ -1,9 +1,10 @@
-import { MathfieldElement } from "https://esm.run/mathlive";
 import { MathEditor } from "./core/math-editor.js";
 import { HistoryManager } from "./core/history.js";
 import { KeyboardHandler } from "./core/keyboard.js";
 import { ProjectIO } from "./core/io.js";
 import { UIManager } from "./ui/ui-manager.js";
+import { OnboardingManager } from "./ui/onboarding.js";
+import { StorageManager } from "./utils/storage.js";
 
 class App {
   constructor() {
@@ -11,20 +12,23 @@ class App {
     this.preview = document.getElementById("preview");
 
     this.history = new HistoryManager(50);
-    this.editor = new MathEditor(this.stack, this.preview, () => this.autoSave());
+    this.editor = new MathEditor(this.stack, this.preview, () => this.onStateChange());
 
     this.ui = new UIManager(this.editor, this.history, null);
     this.io = new ProjectIO(this.editor, this.history, (msg) => this.ui.showStatus(msg));
+    this.storage = new StorageManager(this.editor, this.history, (msg) => this.ui.showStatus(msg));
+    this.onboarding = new OnboardingManager((msg) => this.ui.showStatus(msg));
 
     this.keyboard = new KeyboardHandler(this.editor, {
       undo: () => this.ui.handleUndo(),
+      redo: () => this.ui.handleRedo(),
       save: () => this.io.saveProject(),
       export: () => this.io.exportLatex(),
       clear: () => this.io.clearAll(),
       addMath: () => this.ui.handleAddMath(),
       addText: () => this.ui.handleAddText(),
       toggleMode: (input) => this.toggleRowMode(input),
-      onInput: () => this.autoSave(),
+      onInput: () => this.onStateChange(),
       onAddRow: () => this.history.save(this.editor.getState()),
       onRemoveRow: () => this.history.save(this.editor.getState()),
     });
@@ -43,17 +47,24 @@ class App {
     this.ui.setup();
     this.io.setup();
     this.keyboard.setup();
+    this.onboarding.init();
 
-    this.editor.addRow();
+    const hasAutosave = this.storage.loadFromStorage();
+
+    if (!hasAutosave) {
+      this.editor.addRow();
+    }
+
     this.history.save(this.editor.getState());
-    this.ui.updateUndoButton();
+    this.ui.updateHistoryButtons();
   }
 
-  autoSave() {
-    clearTimeout(this._autoSaveTimer);
-    this._autoSaveTimer = setTimeout(() => {
+  onStateChange() {
+    this.storage.saveToStorage();
+    clearTimeout(this._saveTimer);
+    this._saveTimer = setTimeout(() => {
       this.history.save(this.editor.getState());
-      this.ui.updateUndoButton();
+      this.ui.updateHistoryButtons();
     }, 1000);
   }
 

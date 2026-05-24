@@ -10,6 +10,16 @@ export class UIManager {
     this.setupThemeToggle();
     this.setupToolbarButtons();
     this.setupActionButtons();
+    this.loadThemePreference();
+  }
+
+  loadThemePreference() {
+    const saved = localStorage.getItem("mathscript-theme");
+    if (saved === "light") {
+      document.body.classList.add("light-mode");
+      const themeBtn = document.getElementById("themeBtn");
+      if (themeBtn) themeBtn.querySelector(".btn-icon").textContent = "☀️";
+    }
   }
 
   setupThemeToggle() {
@@ -18,7 +28,8 @@ export class UIManager {
     themeBtn?.addEventListener("click", () => {
       document.body.classList.toggle("light-mode");
       const isLight = document.body.classList.contains("light-mode");
-      themeBtn.textContent = isLight ? "☀️" : "🌙";
+      localStorage.setItem("mathscript-theme", isLight ? "light" : "dark");
+      themeBtn.querySelector(".btn-icon").textContent = isLight ? "☀️" : "🌙";
       this.showStatus(`Switched to ${isLight ? 'light' : 'dark'} mode`);
     });
   }
@@ -56,24 +67,34 @@ export class UIManager {
 
     if (state) {
       this.editor.restoreState(state);
-      this.updateUndoButton();
+      this.updateHistoryButtons();
       this.showStatus("Undone");
+    }
+  }
+
+  handleRedo() {
+    const state = this.history.redo();
+
+    if (state) {
+      this.editor.restoreState(state);
+      this.updateHistoryButtons();
+      this.showStatus("Redone");
     }
   }
 
   handleAddMath() {
     this.editor.addRow();
     this.history.save(this.editor.getState());
-    this.updateUndoButton();
+    this.updateHistoryButtons();
   }
 
   handleAddText() {
     this.editor.addRow(null, "", true);
     this.history.save(this.editor.getState());
-    this.updateUndoButton();
+    this.updateHistoryButtons();
   }
 
-  updateUndoButton() {
+  updateHistoryButtons() {
     const undoBtn = document.getElementById("undoBtn");
     if (undoBtn) {
       undoBtn.disabled = !this.history.canUndo();
