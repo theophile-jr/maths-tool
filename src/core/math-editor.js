@@ -1,4 +1,9 @@
-import { MathfieldElement } from "https://esm.run/mathlive";
+import { MathfieldElement } from "https://esm.run/mathlive@0.109.2";
+
+// Point MathLive at the matching pinned fonts. Without this, MathLive derives a
+// malformed "mathlive//fonts" path that 400s, so glyphs fail to render.
+MathfieldElement.fontsDirectory = "https://cdn.jsdelivr.net/npm/mathlive@0.109.2/fonts";
+MathfieldElement.soundsDirectory = null;
 
 export class MathEditor {
   constructor(stackElement, previewElement, onStateChange) {

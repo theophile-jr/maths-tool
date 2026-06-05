@@ -16,6 +16,7 @@ class App {
 
     this.ui = new UIManager(this.editor, this.history, null);
     this.io = new ProjectIO(this.editor, this.history, (msg) => this.ui.showStatus(msg));
+    this.ui.io = this.io;
     this.storage = new StorageManager(this.editor, this.history, (msg) => this.ui.showStatus(msg));
     this.onboarding = new OnboardingManager((msg) => this.ui.showStatus(msg));
 
@@ -51,7 +52,10 @@ class App {
 
     const hasAutosave = this.storage.loadFromStorage();
 
-    if (!hasAutosave) {
+    // Always guarantee at least one editable row. Without this guard a stored
+    // empty document (or any restore that yields no rows) leaves the editor
+    // with nothing to type into — i.e. "locked".
+    if (!hasAutosave || this.stack.children.length === 0) {
       this.editor.addRow();
     }
 

@@ -122,7 +122,22 @@
 <input type="file" id="fileInput" accept=".json,.tex,.txt" aria-hidden="true">
 <input type="file" id="latexInput" accept=".tex,.txt" aria-hidden="true">
 
-<script type="module" src="src/app.js"></script>
+<script type="module">
+  // Load the app via dynamic import so a failed CDN module load (MathLive)
+  // doesn't silently leave a dead, "locked" editor. Surface a retry instead.
+  import("./src/app.js").catch((err) => {
+    console.error("MathScript failed to start:", err);
+    const stack = document.getElementById("stack");
+    if (stack) {
+      stack.innerHTML =
+        '<div style="padding:24px;text-align:center;opacity:0.8;">' +
+        "Couldn't load the math engine (network issue). " +
+        '<button onclick="location.reload()" style="margin-left:8px;padding:6px 16px;' +
+        "border-radius:6px;border:none;cursor:pointer;background:#667eea;color:#fff;" +
+        'font:inherit;">Retry</button></div>';
+    }
+  });
+</script>
 
 </body>
 </html>
